@@ -48,7 +48,8 @@ FOLLOW-UP RESOLUTION:
 
 SAFETY VERDICT:
 - Set safety_verdict to "clean" for normal queries
-- Set to "flagged" if query seems potentially problematic but not blocked by safety guard
+- Set to "caution" if query seems potentially problematic but not clearly harmful
+- Set to "block" if query appears to violate policies (though safety guard should catch these)
 - Add safety_note explaining any concerns
 
 OUTPUT FORMAT:
