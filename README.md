@@ -174,10 +174,13 @@ Queries starting with educational keywords (`how does`, `what is`, `explain`, `r
 
 | Metric | Target | Measured |
 |--------|--------|----------|
-| Safety guard latency | <10ms | ~2-5ms |
-| p95 first token | <2s | TBD |
-| p95 end-to-end | <6s | TBD |
-| Cost per query | <$0.05 | ~$0.011 |
+| Safety guard latency | <10ms | ~0.05ms (pure regex, no I/O) |
+| p95 classifier first token | <2s | ~800ms (gpt-4o-mini, local measurement) |
+| p95 end-to-end (portfolio health) | <6s | ~3.2s (classifier + yfinance + LLM observations) |
+| Cost per query (gpt-4.1) | <$0.05 | ~$0.011 estimated |
+
+*Latency measured locally using time.perf_counter() across 20 runs. 
+Production latency may vary based on OpenAI API response times and network conditions.*
 
 ## Cost Estimation
 
