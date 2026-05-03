@@ -253,7 +253,7 @@ class PortfolioHealthAgent(BaseAgent):
             if performance.total_return_pct > 0:
                 fallback_obs.append(Observation(
                     severity="info",
-                    text=f"Positive returns: Your portfolio is up {performance.total_return_pct:.1f}% overall, which is a good sign."
+                    text=f"Positive returns: Your portfolio is up {performance.total_return_pct:.1f}%, which is a good sign."
                 ))
             elif performance.total_return_pct < -20:
                 fallback_obs.append(Observation(
@@ -298,16 +298,16 @@ class PortfolioHealthAgent(BaseAgent):
             
             # Handle empty portfolio
             if not normalized:
-                # Stream EMPTY_PORTFOLIO_RESULT word by word
-                words = EMPTY_PORTFOLIO_RESULT["raw_summary"].split()
-                accumulated = ""
-                for i, word in enumerate(words):
-                    accumulated += word + " "
-                    yield f"data: {json.dumps({'event': 'data', 'content': accumulated.strip()})}\n\n"
+                # Build HealthCheckResult from EMPTY_PORTFOLIO_RESULT dict
+                result = HealthCheckResult(**EMPTY_PORTFOLIO_RESULT)
+                
+                # Stream raw_summary word by word
+                words = result.raw_summary.split()
+                for word in words:
+                    yield f"data: {json.dumps({'event': 'token', 'text': word + ' '})}\n\n"
                     await asyncio.sleep(0)
                 
-                # Build result object
-                result = HealthCheckResult(**EMPTY_PORTFOLIO_RESULT)
+                # Yield complete event with full result
                 yield f"data: {json.dumps({'event': 'data_complete', 'result': result.model_dump()})}\n\n"
                 return
             
@@ -334,10 +334,8 @@ class PortfolioHealthAgent(BaseAgent):
             
             # Stream raw_summary word by word
             words = raw_summary.split()
-            accumulated = ""
             for word in words:
-                accumulated += word + " "
-                yield f"data: {json.dumps({'event': 'data', 'content': accumulated.strip()})}\n\n"
+                yield f"data: {json.dumps({'event': 'token', 'text': word + ' '})}\n\n"
                 await asyncio.sleep(0)
             
             # Yield complete event
@@ -345,4 +343,4 @@ class PortfolioHealthAgent(BaseAgent):
             
         except Exception as e:
             logger.error(f"PortfolioHealthAgent error: {e}")
-            yield f"data: {json.dumps({'event': 'error', 'message': str(e)})}\n\n"
+            yield f"data: {json.dumps({'event': 'error', 'code': 'agent_error', 'message': str(e)})}\n\n"
